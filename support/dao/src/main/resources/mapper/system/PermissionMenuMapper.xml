@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.fastcloud.cn.support.dao.system.PermissionMenuMapper">
+
+	<!-- 通用查询映射结果 -->
+	<resultMap id="BaseResultMap" type="com.fastcloud.cn.support.domain.system.PermissionMenu">
+		<id column="sys_permission_menu_id" property="sysPermissionMenuId" />
+		<result column="permission_id" property="permissionId" />
+		<result column="menu_id" property="menuId" />
+	</resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        sys_permission_menu_id, permission_id, menu_id
+    </sql>
+
+</mapper>

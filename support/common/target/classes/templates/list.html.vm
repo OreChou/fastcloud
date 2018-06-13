@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>${table.comment}管理</title>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
+    <link rel="stylesheet" href="../css/bootstrap.min.css">
+    <link rel="stylesheet" href="../css/font-awesome.min.css">
+    <link rel="stylesheet" href="../css/bootstrap-table.min.css">
+    <link rel="stylesheet" href="../css/main.css">
+    <script src="../libs/jquery.min.js"></script>
+    <script src="../plugins/layer/layer.js"></script>
+    <script src="../libs/bootstrap.min.js"></script>
+    <script src="../libs/vue.min.js"></script>
+    <script src="../libs/validator.min.js"></script>
+    <script src="../libs/bootstrap-table.min.js"></script>
+    <script src="../libs/bootstrap-table-zh-CN.min.js"></script>
+    <script src="../js/common.js"></script>
+</head>
+<body>
+<div id="app" v-cloak>
+    <div v-show="showList">
+        <div class="grid-btn">
+            <a v-if="hasPermission('${cfg.module}:${table.entityPath}:add')" class="btn btn-primary" @click="add"><i class="fa fa-plus"></i>&nbsp;新增</a>
+            <a v-if="hasPermission('${cfg.module}:${table.entityPath}:update')" class="btn btn-primary" @click="update"><i class="fa fa-pencil-square-o"></i>&nbsp;修改</a>
+            <a v-if="hasPermission('${cfg.module}:${table.entityPath}:delete')" class="btn btn-primary" @click="del"><i class="fa fa-trash-o"></i>&nbsp;删除</a>
+        </div>
+        <table id="table"></table>
+    </div>
+
+    <div v-show="!showList" class="panel panel-default">
+        <div class="panel-heading">${table.comment}</div>
+        <form class="form-horizontal">
+            #foreach($field in ${table.fields})
+                #if(!${field.keyIdentityFlag})
+            <div class="form-group">
+                <div class="col-sm-2 control-label">${field.comment}</div>
+                <div class="col-sm-10">
+                    <input type="text" class="form-control" v-model="${table.entityPath}.${field.propertyName}" placeholder="${field.comment}"/>
+                </div>
+            </div>
+                #end
+            #end
+            <div class="form-group">
+                <div class="col-sm-2 control-label"></div>
+                <input type="button" class="btn btn-primary" @click="saveOrUpdate" value="确定"/>
+                &nbsp;&nbsp;<input type="button" class="btn btn-warning" @click="reload" value="返回"/>
+            </div>
+        </form>
+    </div>
+</div>
+
+## ----------  BEGIN 字段循环遍历  ----------
+#foreach($field in ${table.fields})
+#if(${field.keyFlag})
+    #set($pkName=${field.propertyName})
+#end
+#end
+
+<script>
+    var options = {
+        url: baseURL + '${table.entityPath}/list',
+        columns: [
+            { checkbox: true, field: 'checked'},
+            #foreach($field in ${table.fields})
+                #if(${field.keyIdentityFlag})
+            { title: '${field.comment}', field: '${field.propertyName}', },
+                #else
+            { title: '${field.comment}', field: '${field.propertyName}'}#if($velocityCount != $table.fields.size()), #end
+
+                #end
+            #end
+        ],
+
+    };
+    var vm = new Vue({
+        el:'#app',
+        data: {
+            showList: true,
+            title: null,
+            ${table.entityPath}: {},
+            condition: {},
+        },
+        methods: {
+            queryParams: function(options){
+                return {
+                    size: options.pageSize,
+                    current: options.pageNumber,
+                    condition: this.condition,
+                }
+            },
+            initTable: function(){
+                options.queryParams = this.queryParams;
+                $('#table').bootstrapTable(options);
+            },
+            reload: function() {
+                this.showList = true;
+                $('#table').bootstrapTable('refresh');
+            },
+            add: function(){
+                vm.showList = false;
+                vm.title = "新增";
+                vm.${table.entityPath} = {};
+            },
+            update: function (event) {
+                var $pkName = getSelectedRow('$pkName');
+                if($pkName == null) return;
+
+                vm.showList = false;
+                vm.title = "修改";
+
+                vm.getInfo($pkName)
+            },
+            saveOrUpdate: function (event) {
+                var url = vm.${table.entityPath}.$pkName == null ? "${table.entityPath}/add" : "${table.entityPath}/update";
+                $.ajax({
+                    url: baseURL + url,
+                    data: JSON.stringify(vm.${table.entityPath}),
+                    success: function(r){
+                        if(r.code === 200){
+                            alert('操作成功', function(index){
+                                vm.reload();
+                            });
+                        }else{
+                            alert(r.message);
+                        }
+                    }
+                });
+            },
+            del: function (event) {
+                var ${pkName}s = getSelectedRows('$pkName');
+                if(${pkName}s == null) return;
+
+                confirm('确定要删除选中的记录？', function(){
+                    $.ajax({
+                        url: baseURL + "${table.entityPath}/delete",
+                        data: JSON.stringify(${pkName}s),
+                        success: function(r){
+                            if(r.code == 200){
+                                alert('操作成功', function(index){
+                                    vm.reload();
+                                });
+                            }else{
+                                alert(r.message);
+                            }
+                        }
+                    });
+                });
+            },
+            getInfo: function(${pkName}){
+                $.post(baseURL + "${table.entityPath}/detail/"+$pkName, [], function(r){
+                    vm.${table.entityPath} = r.content;
+                });
+            },
+        },
+        mounted: function() {
+            this.initTable();
+        }
+    });
+
+
+</script>
+</body>
+</html>

@@ -1,0 +1,98 @@
+package ${package.Controller};
+
+
+import com.baomidou.mybatisplus.plugins.Page;
+import com.chj.common.annotation.SysLog;
+import com.chj.common.util.Response;
+import com.chj.common.validator.group.AddGroup;
+import com.chj.common.validator.group.UpdateGroup;
+import com.chj.platform.controller.support.BaseController;
+import com.chj.domain.${cfg.module}.${table.entityName};
+import com.chj.service.${cfg.module}.${table.serviceName};
+import org.apache.shiro.authz.annotation.RequiresPermissions;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.*;
+
+/**
+ * <p>
+ * $!{table.comment} 前端控制器
+ * </p>
+ *
+ * @author ${author}
+ * @since ${date}
+ */
+#if(${restControllerStyle})
+@RestController
+#else
+@Controller
+#end
+@RequestMapping("#if(${package.ModuleName})/${package.ModuleName}#end/#if(${controllerMappingHyphenStyle})${controllerMappingHyphen}#else${table.entityPath}#end/")
+#if(${kotlin})
+class ${table.controllerName}#if(${superControllerClass}) : ${superControllerClass}()#end
+
+#else
+#if(${superControllerClass})
+public class ${table.controllerName} extends ${superControllerClass} {
+#else
+public class ${table.controllerName} {
+#end
+
+    @Autowired
+    private ${table.serviceName} ${table.entityPath}Service;
+
+
+    @RequiresPermissions("sys:${table.entityPath}:list")
+    @PostMapping("list")
+    public Response list(@RequestBody Page<${table.entityName}> page) {
+        page = ${table.entityPath}Service.selectPageWithCondition(page);
+
+        return Response.ok(page);
+    }
+
+    @RequiresPermissions("sys:${table.entityPath}:detail")
+    @PostMapping("detail/{id}")
+    public Response detail(@PathVariable("id") Long id) {
+        ${table.entityName} ${table.entityPath} = ${table.entityPath}Service.selectById(id);
+
+        return Response.ok(${table.entityPath});
+    }
+
+    @RequiresPermissions("sys:${table.entityPath}:add")
+    @SysLog("添加${table.comment}")
+    @PostMapping("add")
+    public Response add(@RequestBody @Validated(AddGroup.class) ${table.entityName} ${table.entityPath}) {
+        ${table.entityPath}Service.insert(${table.entityPath});
+
+        return Response.ok(${table.entityPath});
+    }
+
+    @RequiresPermissions("sys:${table.entityPath}:update")
+    @SysLog("修改${table.comment}")
+    @PostMapping("update")
+    public Response update(@RequestBody @Validated(UpdateGroup.class) ${table.entityName} ${table.entityPath}) {
+        ${table.entityPath}Service.updateById(${table.entityPath});
+
+        return Response.ok();
+    }
+
+    @RequiresPermissions("sys:${table.entityPath}:delete")
+    @SysLog("删除${table.comment}")
+    @PostMapping("delete/{id}")
+    public Response delete(@PathVariable("id") Long id) {
+        ${table.entityPath}Service.deleteById(id);
+
+        return Response.ok();
+    }
+
+    @RequiresPermissions("sys:${table.entityPath}:delete")
+    @SysLog("批量删除${table.comment}")
+    @PostMapping("delete")
+    public Response delete(@RequestBody List<Long> ids) {
+        ${table.entityPath}Service.deleteBatchIds(ids);
+        return Response.ok();
+    }
+
+}
+
+#end
