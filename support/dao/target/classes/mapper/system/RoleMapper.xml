@@ -8,11 +8,12 @@
 		<result column="name" property="name" />
 		<result column="icon" property="icon" />
 		<result column="description" property="description" />
+		<result column="status" property="status" />
 	</resultMap>
 
     <!-- 通用查询结果列 -->
     <sql id="Base_Column_List">
-        role_id, name, icon, description
+        role_id, name, icon, description, status
     </sql>
 
 </mapper>

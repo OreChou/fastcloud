@@ -24,6 +24,13 @@
             <artifactId>mybatisplus-spring-boot-starter</artifactId>
             <version>${mybatis-plus.starter.version}</version>
         </dependency>
+
+        <!-- 第三方依赖 -->
+        <dependency>
+            <groupId>com.alibaba</groupId>
+            <artifactId>druid-spring-boot-starter</artifactId>
+            <version>${druid.starter}</version>
+        </dependency>
     </dependencies>
 
 </project>

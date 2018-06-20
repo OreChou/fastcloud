@@ -4,14 +4,14 @@
 
 	<!-- 通用查询映射结果 -->
 	<resultMap id="BaseResultMap" type="com.fastcloud.cn.support.domain.system.UserRole">
-		<id column="sys_user_role_id" property="sysUserRoleId" />
-		<result column="sys_user_id" property="sysUserId" />
-		<result column="sys_role_id" property="sysRoleId" />
+		<id column="user_role_id" property="userRoleId" />
+		<result column="user_id" property="userId" />
+		<result column="role_id" property="roleId" />
 	</resultMap>
 
     <!-- 通用查询结果列 -->
     <sql id="Base_Column_List">
-        sys_user_role_id, sys_user_id, sys_role_id
+        user_role_id, user_id, role_id
     </sql>
 
 </mapper>
